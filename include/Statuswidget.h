@@ -21,6 +21,7 @@ private:
     int score;
     int level;
     QString smiley;
+    QString helpMsg;
     int fontSize;
     void updateSmiley(int prevScore, int newScore);
 };

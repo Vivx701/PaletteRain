@@ -19,6 +19,7 @@ public:
     PaletteRain(QWidget *parent = nullptr);
     ~PaletteRain();
     void showGameOverDialog(int score, int level);
+    void showHelpDialog();
     void playSoundEffect(QSoundEffect *effect);
 };
 

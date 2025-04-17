@@ -5,6 +5,7 @@
 StatusWidget::StatusWidget(QWidget *parent)
     : QWidget(parent), score(0), level(1), smiley("😃") {
     fontSize = qMax(20, height() / 10);
+    helpMsg = "F1(Help)";
 }
 
 void StatusWidget::setScore(int newScore) {
@@ -53,4 +54,5 @@ void StatusWidget::paintEvent(QPaintEvent *) {
     painter.drawText(10, 30, QString("SCORE: %1").arg(score));
     painter.drawText(10, 55, QString("LEVEL: %1").arg(level));
     painter.drawText(10, 100, smiley);
+    painter.drawText(10, 150, helpMsg);
 }

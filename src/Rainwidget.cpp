@@ -33,33 +33,49 @@ QSize RainWidget::sizeHint() const {
 
 void RainWidget::paintEvent(QPaintEvent *) {
     QPainter p(this);
-    // 🔮 Retro gradient background
-    QLinearGradient gradient(0, 0, 0, height());
-    gradient.setColorAt(0.0, QColor("#0a0a0a"));
-    gradient.setColorAt(1.0, QColor("#1c1c1c"));
-    p.fillRect(rect(), gradient);
+    p.setRenderHint(QPainter::Antialiasing);
+
+    const int borderMargin = 2; // Match border size and spacing
+
+    // 🟦 Draw retro border
+    QPen borderPen(QColor("#00FFFF"));  // neon cyan
+    borderPen.setWidth(borderMargin);   // thickness of the border
+    p.setPen(borderPen);
+    p.setBrush(Qt::NoBrush);
+    p.drawRect(rect().adjusted(borderMargin / 2,
+                               borderMargin / 2,
+                               -borderMargin / 2,
+                               -borderMargin / 2));
+
+    // 🔲 Draw grid blocks inside the border
+    int offsetX = borderMargin+3;
+    int offsetY = borderMargin+3;
 
     for (int y = 0; y < rows; ++y) {
         for (int x = 0; x < cols; ++x) {
             if (grid[y][x]) {
                 p.setPen(Qt::white);
                 p.setBrush(grid[y][x]->color);
-                p.drawRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                p.drawRect(offsetX + x * tileSize,
+                           offsetY + y * tileSize,
+                           tileSize, tileSize);
             }
         }
     }
 
-
+    // 🎮 Draw falling blocks
     for (int i = 0; i < fallingBlocks.size(); ++i) {
         const QPoint &pos = fallingPositions[i];
         if (pos.y() >= 0) {
             p.setBrush(fallingBlocks[i]->color);
             p.setPen(Qt::white);
-            p.drawRect(pos.x() * tileSize, pos.y() * tileSize, tileSize, tileSize);
+            p.drawRect(offsetX + pos.x() * tileSize,
+                       offsetY + pos.y() * tileSize,
+                       tileSize, tileSize);
         }
     }
-
 }
+
 
 
 void RainWidget::keyPressEvent(QKeyEvent *event) {
@@ -86,6 +102,9 @@ void RainWidget::keyPressEvent(QKeyEvent *event) {
             fallingBlocks[0]->color = lastColor;
         }
         break;
+    case Qt::Key_F1:
+        emit helpRequested();
+        break;
     }
 
     update();
@@ -95,10 +114,15 @@ void RainWidget::keyPressEvent(QKeyEvent *event) {
 void RainWidget::updateGame() {
     if (!moveDroplet(0, 1)) {
         lockDroplet();
-        clearMatches();
+        checkAndClearAllMatches();
         spawnDroplet();
     }
     update();
+}
+
+bool RainWidget::getPaused() const
+{
+    return paused;
 }
 
 
@@ -155,66 +179,62 @@ void RainWidget::lockDroplet() {
     fallingPositions.clear();
 }
 
-
-
 void RainWidget::clearMatches() {
-    QVector<QPoint> toClear;
+    QSet<QPoint> toClear;  // ✅ Use QSet to avoid duplicates
     clearedBlocks = 0;
-    // Horizontal
+
+    // 🔁 Horizontal check
     for (int y = 0; y < rows; ++y) {
         int count = 1;
         for (int x = 1; x < cols; ++x) {
-            if (grid[y][x] && grid[y][x-1] &&
-                grid[y][x]->color == grid[y][x-1]->color) {
+            if (grid[y][x] && grid[y][x - 1] &&
+                grid[y][x]->color == grid[y][x - 1]->color) {
                 count++;
             } else {
                 if (count >= 3) {
-                    for (int i = 0; i < count; ++i) {
-                        toClear.append(QPoint(x - i - 1, y));
-                    }
+                    for (int i = 0; i < count; ++i)
+                        toClear.insert(QPoint(x - i - 1, y));
                 }
                 count = 1;
             }
         }
         if (count >= 3) {
-            for (int i = 0; i < count; ++i){
-                toClear.append(QPoint(cols - i - 1, y));
-            }
+            for (int i = 0; i < count; ++i)
+                toClear.insert(QPoint(cols - i - 1, y));
         }
     }
 
-    // Vertical
+    // 🔁 Vertical check
     for (int x = 0; x < cols; ++x) {
         int count = 1;
         for (int y = 1; y < rows; ++y) {
-            if (grid[y][x] && grid[y-1][x] &&
-                grid[y][x]->color == grid[y-1][x]->color) {
+            if (grid[y][x] && grid[y - 1][x] &&
+                grid[y][x]->color == grid[y - 1][x]->color) {
                 count++;
             } else {
                 if (count >= 3) {
-                    for (int i = 0; i < count; ++i) {
-                        toClear.append(QPoint(x, y - i - 1));
-                    }
+                    for (int i = 0; i < count; ++i)
+                        toClear.insert(QPoint(x, y - i - 1));
                 }
                 count = 1;
             }
         }
         if (count >= 3) {
-            for (int i = 0; i < count; ++i){
-                toClear.append(QPoint(x, rows - i - 1));
-            }
+            for (int i = 0; i < count; ++i)
+                toClear.insert(QPoint(x, rows - i - 1));
         }
     }
 
-    // Clear collected matches
-    clearedBlocks = toClear.length();
+    // 💣 Clear the matched blocks
+    clearedBlocks = toClear.size();
     for (const QPoint &pt : toClear) {
         if (grid[pt.y()][pt.x()]) {
             delete grid[pt.y()][pt.x()];
             grid[pt.y()][pt.x()] = nullptr;
         }
     }
-    // Drop everything above cleared cells
+
+    // ⬇️ Drop blocks above
     for (int x = 0; x < cols; ++x) {
         for (int y = rows - 2; y >= 0; --y) {
             if (grid[y][x] && !grid[y + 1][x]) {
@@ -227,23 +247,26 @@ void RainWidget::clearMatches() {
         }
     }
 
+    // 🧮 Scoring and leveling
     score += (clearedBlocks * 10);
-    qDebug()<< score <<" -- " <<clearedBlocks;
     emit scoreChanged(score);
 
-    // Check if score crossed next level threshold
     if (score >= nextLevelScore) {
         level++;
-        nextLevelScore += 100;
-
+        nextLevelScore += 500;
         int newInterval = qMax(100, 400 - (level - 1) * 25);
         timer->setInterval(newInterval);
-
-        qDebug() << "Level Up! Now Level:" << level << " | Speed:" << newInterval << "ms";
         emit levelChanged(level);
     }
-
 }
+
+void RainWidget::checkAndClearAllMatches()
+{
+    do {
+        clearMatches();
+    } while (clearedBlocks > 0);
+}
+
 
 void RainWidget::resetGame() {
     // Clear the grid
@@ -265,10 +288,27 @@ void RainWidget::resetGame() {
     if (!timer->isActive()) {
         timer->start(400); // reset to initial speed
     }
-
+    score = 0;
+    level = 1;
+    emit levelChanged(level);
+    emit scoreChanged(score);
     // Spawn the first droplet
     spawnDroplet();
 
     // Redraw the grid
     update();
+}
+
+void RainWidget::pauseGame() {
+    if (!paused) {
+        timer->stop();
+        paused = true;
+    }
+}
+
+void RainWidget::resumeGame() {
+    if (paused) {
+        timer->start();  // resumes with last interval
+        paused = false;
+    }
 }

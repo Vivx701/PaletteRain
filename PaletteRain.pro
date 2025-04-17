@@ -15,6 +15,7 @@ SOURCES += \
     main.cpp
 
 HEADERS += \
+    include/GameVersion.h \
     include/Statuswidget.h \
     include/Droplet.h \
     include/Paletterain.h \

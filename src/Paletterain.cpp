@@ -36,7 +36,7 @@ PaletteRain::PaletteRain(QWidget *parent)
     connect(game, SIGNAL(scoreChanged(int)), status, SLOT(setScore(int)));
     connect(game, SIGNAL(levelChanged(int)), status, SLOT(setLevel(int)));    
     connect(game, &RainWidget::gameOver, this, &PaletteRain::showGameOverDialog);
-
+    connect(game, &RainWidget::helpRequested, this, &PaletteRain::showHelpDialog);
     //playing sound effect
     connect(game, &RainWidget::levelChanged, [this](int){
         playSoundEffect(levelUpSound);
@@ -74,6 +74,74 @@ void PaletteRain::showGameOverDialog(int score, int level) {
         // Optional: Close app or do nothing
         close(); // if RainWidget is the main window
     }
+}
+
+void PaletteRain::showHelpDialog()
+{
+    QString helpText = R"(
+
+🕹️ Palette Rain - How to Play 🕹️
+
+Match 3 or more blocks of the same color either horizontally or vertically.
+Blocks fall in sets of 3. Rotate their colors, move them, and match them to score points.
+As your score increases, the speed increases. The game ends if blocks reach the top.
+
+Controls:
+
+  Key       | Action
+  ----------|--------------------------
+  ⬅️ Left   | Move droplet left
+  ➡️ Right  | Move droplet right
+  ⬇️ Down   | Speed up fall
+  ⬆️ Up     | Rotate droplet colors
+  F1        | Show help screen
+
+🎯 Score increases by 10 per block cleared.
+🚀 Level increases every 500 points, and speed increases with level.
+
+👨‍💻 **Developer**
+Vivek P
+🌐 [GitHub](https://github.com/Vivx701)
+✉️ vivx_developer@yahoo.in
+🔗 [LinkedIn](https://linkedin.com/in/vivek-p-87323b111)
+
+)";
+
+    helpText += "Built with Qt version:" QT_VERSION_STR;
+    QMessageBox *msg = new QMessageBox(this);
+    msg->setWindowTitle("How to Play - Palette Rain");
+    msg->setText(helpText);
+
+    // Apply retro style
+    msg->setStyleSheet(R"(
+    QMessageBox {
+        background-color: black;
+        color: white;
+        font-family: 'Courier';
+        font-size: 11pt;
+    }
+    QLabel {
+        color: white;
+    }
+    QPushButton {
+        background-color: #222;
+        color: white;
+        padding: 6px;
+        border: 1px solid #555;
+    }
+    QPushButton:hover {
+        background-color: #444;
+    }
+)");
+
+    msg->setStandardButtons(QMessageBox::Ok|QMessageBox::Help);
+    game->pauseGame();
+    int ret = msg->exec();
+    if (ret == QMessageBox::Help) {
+        QMessageBox::aboutQt(this);
+    }
+    game->resumeGame();
+
 }
 
 void PaletteRain::playSoundEffect(QSoundEffect *effect)
