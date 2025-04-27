@@ -13,7 +13,6 @@ license: MIT
 website: https://github.com/Vivx701/PaletteRain
 source-code: https://github.com/Vivx701/PaletteRain
 issues: https://github.com/Vivx701/PaletteRain/issues
-icon: snap/gui/paletterain.svg
 
 apps:
   paletterain:
@@ -29,6 +28,7 @@ apps:
       - wayland
     environment:
       QT_QPA_PLATFORM_PLUGIN_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/qt6/plugins/platforms
+      LD_LIBRARY_PATH: ${SNAP_LIBRARY_PATH}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}:$SNAP/usr/lib:$SNAP/usr/lib/x86_64-linux-gnu
 parts:
   paletterain:
     plugin: cmake
