@@ -1,0 +1,11 @@
+[Desktop Entry]
+GenericName=Puzzle Game
+Exec=paletterain
+Icon=${SNAP}/meta/gui/paletterain.svg
+Terminal=false
+Type=Application
+Categories=Game;ArcadeGame;
+StartupNotify=true
+Name=Palette Rain
+Name[en_IN]=Palette Rain
+Comment[en_IN]=Retro falling-block puzzle game based on color combos

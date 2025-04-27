@@ -1,0 +1,67 @@
+name: paletterain
+title: Palette Rain
+base: core22
+version: 0.3.0-1
+summary: Retro falling-block puzzle game
+description: |
+  Palette Rain is a retro-style falling block puzzle game built using Qt 6.
+  Match colors, clear combos, and level up in a nostalgic arcade aesthetic.
+
+grade: stable
+confinement: strict
+license: MIT
+website: https://github.com/Vivx701/PaletteRain
+source-code: https://github.com/Vivx701/PaletteRain
+issues: https://github.com/Vivx701/PaletteRain/issues
+
+apps:
+  paletterain:
+    command: usr/bin/PaletteRain
+    plugs:
+      - desktop
+      - desktop-legacy
+      - home
+      - audio-playback
+      - alsa
+      - x11
+      - opengl
+      - wayland
+    environment:
+      QT_QPA_PLATFORM_PLUGIN_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/qt6/plugins/platforms
+      LD_LIBRARY_PATH: ${SNAP_LIBRARY_PATH}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}:$SNAP/usr/lib:$SNAP/usr/lib/x86_64-linux-gnu
+parts:
+  paletterain:
+    plugin: cmake
+    source: https://github.com/Vivx701/PaletteRain/archive/refs/tags/v0.3.0.zip
+    source-type: zip
+    source-subdir: PaletteRain-0.3.0
+    cmake-generator: Ninja
+    cmake-parameters:
+      - -DCMAKE_INSTALL_PREFIX=/usr
+    build-packages:
+      - qt6-base-dev
+      - qt6-multimedia-dev
+      - qt6-tools-dev
+      - qt6-tools-dev-tools
+      - qt6-l10n-tools
+      - libopengl-dev
+      - libglu1-mesa-dev
+      - ninja-build
+      - g++
+      - make
+    stage-packages:
+      - libqt6core6
+      - libqt6gui6
+      - libqt6widgets6
+      - libqt6multimedia6
+      - libx11-6
+      - libxcb-xinerama0
+      - libproxy1v5
+      - libgtk-3-0
+      - qt6-image-formats-plugins
+      - qt6-translations-l10n
+      - qt6-qpa-plugins
+      - qt6-xdgdesktopportal-platformtheme
+      - libpulse0
+      - libasound2
+      - jackd1
