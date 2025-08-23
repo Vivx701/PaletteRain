@@ -13,6 +13,7 @@ public:
 public slots:
     void setScore(int score);
     void setLevel(int level);
+    void setPaused(bool paused);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -22,8 +23,8 @@ private:
     int level;
     QString smiley;
     QString helpMsg;
+    QString pauseMsg;
     int fontSize;
     void updateSmiley(int prevScore, int newScore);
 };
-
 #endif // STATUSWIDGET_H

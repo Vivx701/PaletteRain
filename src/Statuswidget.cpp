@@ -33,6 +33,12 @@ void StatusWidget::setLevel(int newLevel) {
     update(); // Trigger repaint
 }
 
+void StatusWidget::setPaused(bool paused)
+{
+    pauseMsg = paused ? "Paused": "";
+    smiley = paused ? "⏸️": "😐";
+    update();
+}
 
 void StatusWidget::paintEvent(QPaintEvent *) {
 
@@ -55,4 +61,7 @@ void StatusWidget::paintEvent(QPaintEvent *) {
     painter.drawText(10, 55, QString("LEVEL: %1").arg(level));
     painter.drawText(10, 100, smiley);
     painter.drawText(10, 150, helpMsg);
+
+    //Paused
+    painter.drawText(10, 200, pauseMsg);
 }

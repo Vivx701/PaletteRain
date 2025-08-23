@@ -23,7 +23,7 @@
 | ⬇️ Down     | Speed up falling droplet |
 | ⬆️ Up       | Rotate droplet colors     |
 | R          | Reset the game             |
-| P          | Pause / Resume             |
+| Esc          | Pause / Resume             |
 | F1         | Show Help screen           |
 
 ---

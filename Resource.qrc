@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file>Music/levelup.wav</file>
         <file>Music/gameover.wav</file>
+        <file>Music/levelup.wav</file>
+        <file>Music/pause.wav</file>
     </qresource>
 </RCC>

@@ -53,6 +53,7 @@ signals:
     void levelChanged(int level);
     void gameOver(int finalScore, int level);
     void helpRequested();
+    void gamePaused(bool paused);
 };
 
 #endif // RAINWIDGET_H

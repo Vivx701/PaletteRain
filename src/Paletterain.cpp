@@ -22,31 +22,38 @@ PaletteRain::PaletteRain(QWidget *parent)
     central->setLayout(layout);
     setCentralWidget(central);
 
-    levelUpSound = new QSoundEffect(this);
-    gameOverSound   = new QSoundEffect(this);
-    levelUpSound->setVolume(1.0);
-    gameOverSound->setVolume(1.0);
+    levelUpSound   = new QSoundEffect(this);
+    gameOverSound  = new QSoundEffect(this);
+    gamePauseSound = new QSoundEffect(this);
     levelUpSound->setSource(QUrl::fromLocalFile("://Music/levelup.wav"));
     gameOverSound->setSource(QUrl::fromLocalFile("://Music/gameover.wav"));
-
+    gamePauseSound->setSource(QUrl::fromLocalFile("://Music/pause.wav"));
+    levelUpSound->setVolume(1.0);
+    gameOverSound->setVolume(1.0);
+    gamePauseSound->setVolume(1.0);
 
     game->setFocusPolicy(Qt::StrongFocus);
     game->setFocus();
 
     connect(game, SIGNAL(scoreChanged(int)), status, SLOT(setScore(int)));
-    connect(game, SIGNAL(levelChanged(int)), status, SLOT(setLevel(int)));    
+    connect(game, SIGNAL(levelChanged(int)), status, SLOT(setLevel(int)));
+    connect(game, SIGNAL(gamePaused(bool)), status, SLOT(setPaused(bool)));
     connect(game, &RainWidget::gameOver, this, &PaletteRain::showGameOverDialog);
     connect(game, &RainWidget::helpRequested, this, &PaletteRain::showHelpDialog);
     //playing sound effect
     connect(game, &RainWidget::levelChanged, [this](int){
         playSoundEffect(levelUpSound);
     });
+
+    connect(game,  &RainWidget::gamePaused, [this](bool) {
+        playSoundEffect(gamePauseSound);
+    });
     setFixedSize(centralWidget->sizeHint());
 }
 
 
 void PaletteRain::showGameOverDialog(int score, int level) {
-     playSoundEffect(gameOverSound);
+    playSoundEffect(gameOverSound);
     QString message = QString("💀 GAME OVER 💀\n\n")
                       + "Final Score: " + QString::number(score) + "\n"
                       + "Level: " + QString::number(level) + "\n\n"
@@ -95,6 +102,7 @@ Controls:
   ⬇️ Down   | Speed up fall
   ⬆️ Up     | Rotate droplet colors
   F1        | Show help screen
+  ESC       | Pause/Resume game
 
 🎯 Score increases by 10 per block cleared.
 🚀 Level increases every 500 points, and speed increases with level.
@@ -159,5 +167,4 @@ void PaletteRain::playSoundEffect(QSoundEffect *effect)
 
 PaletteRain::~PaletteRain()
 {
-
 }

@@ -105,6 +105,19 @@ void RainWidget::keyPressEvent(QKeyEvent *event) {
     case Qt::Key_F1:
         emit helpRequested();
         break;
+    case Qt::Key_Escape:
+        if(getPaused())
+        {
+            resumeGame();
+        }
+        else
+        {
+            pauseGame();
+        }
+        break;
+    case Qt::Key_R:
+        resetGame();
+        break;
     }
 
     update();
@@ -303,6 +316,7 @@ void RainWidget::pauseGame() {
     if (!paused) {
         timer->stop();
         paused = true;
+        emit gamePaused(paused);
     }
 }
 
@@ -310,5 +324,6 @@ void RainWidget::resumeGame() {
     if (paused) {
         timer->start();  // resumes with last interval
         paused = false;
+        emit gamePaused(paused);
     }
 }

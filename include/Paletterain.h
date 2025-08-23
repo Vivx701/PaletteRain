@@ -15,6 +15,7 @@ private:
     StatusWidget *status;
     QSoundEffect *levelUpSound;
     QSoundEffect *gameOverSound;
+    QSoundEffect *gamePauseSound;
 public:
     PaletteRain(QWidget *parent = nullptr);
     ~PaletteRain();
