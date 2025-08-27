@@ -1,26 +1,104 @@
 #include <Paletterain.h>
 #include <QHBoxLayout>
-#include <QMessageBox>
+#include <QLabel>
+#include <QKeyEvent>
 
 PaletteRain::PaletteRain(QWidget *parent)
     : QMainWindow(parent)
 {
 
     setWindowTitle("Palette Rain");
-    centralWidget = new QWidget(this);
+    centralWidget = new QStackedWidget(this);
+    setCentralWidget(centralWidget);
+    setFixedSize(centralWidget->sizeHint());
+    createPages();
+}
+
+void PaletteRain::showGameOver(int score, int level)
+{
+    playSoundEffect(gameOverSound);
+    gameOverPage->setScoreAndLevel(score, level);
+    centralWidget->setCurrentIndex(GAMEOVERPAGEINDEX);
+    gameOverPage->setFocus(Qt::ActiveWindowFocusReason);
+}
+
+void PaletteRain::showHelpDialog()
+{
+    if(centralWidget->currentIndex() == GAMEPAGEINDEX)
+    {
+        centralWidget->setCurrentIndex(HELPPAGEINDEX);
+        game->pauseGame();
+    }
+    else
+    {
+        centralWidget->setCurrentIndex(GAMEPAGEINDEX);
+        game->resumeGame();
+    }
+}
+
+void PaletteRain::playSoundEffect(QSoundEffect *effect)
+{
+    if(effect == nullptr)
+    {
+        return;
+    }
+    if(effect->isPlaying())
+    {
+        effect->stop();
+    }
+    effect->play();
+}
+
+bool PaletteRain::eventFilter(QObject *watched, QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+        switch (keyEvent->key()) {
+        case Qt::Key_F1:
+             {
+                if(watched == centralWidget->widget(HELPPAGEINDEX))
+                {
+                    showHelpDialog();
+                    return true;
+                }
+             }
+            break;
+        case Qt::Key_R:
+            {
+                if(watched == centralWidget->widget(GAMEOVERPAGEINDEX))
+                {
+                    centralWidget->setCurrentIndex(GAMEPAGEINDEX);
+                    QCoreApplication::sendEvent(game, event);
+                    return true;
+                }
+            }
+        break;
+        default:
+            break;
+        }
+    }
+
+    // Default: pass the event on
+    return QObject::eventFilter(watched, event);
+}
+
+void PaletteRain::createPages()
+{
+    centralWidget->addWidget(createGamePage());
+    centralWidget->addWidget(createHelpPage());
+    gameOverPage = new GameOverPage();
+    gameOverPage->installEventFilter(this);
+    centralWidget->addWidget(gameOverPage);
+}
+
+QFrame *PaletteRain::createGamePage()
+{
+    QFrame *gamePage = new QFrame();
+    gamePage->setStyleSheet("background-color: #000000;");
+
     game = new RainWidget(this);
     status = new StatusWidget(this);
     status->setFixedSize(200, 200);
-
-
-    QHBoxLayout *layout = new QHBoxLayout();
-    layout->addWidget(game, 3);
-    layout->addWidget(status, 1, Qt::AlignCenter);
-
-    QWidget *central = new QWidget();
-    central->setStyleSheet("background-color: #000000;");
-    central->setLayout(layout);
-    setCentralWidget(central);
 
     levelUpSound   = new QSoundEffect(this);
     gameOverSound  = new QSoundEffect(this);
@@ -35,134 +113,124 @@ PaletteRain::PaletteRain(QWidget *parent)
     game->setFocusPolicy(Qt::StrongFocus);
     game->setFocus();
 
+    QHBoxLayout *layout = new QHBoxLayout();
+    layout->addWidget(game, 3);
+    layout->addWidget(status, 1, Qt::AlignCenter);
+    gamePage->setLayout(layout);
+
     connect(game, SIGNAL(scoreChanged(int)), status, SLOT(setScore(int)));
     connect(game, SIGNAL(levelChanged(int)), status, SLOT(setLevel(int)));
     connect(game, SIGNAL(gamePaused(bool)), status, SLOT(setPaused(bool)));
-    connect(game, &RainWidget::gameOver, this, &PaletteRain::showGameOverDialog);
+    connect(game, &RainWidget::gameOver, this, &PaletteRain::showGameOver);
     connect(game, &RainWidget::helpRequested, this, &PaletteRain::showHelpDialog);
     //playing sound effect
     connect(game, &RainWidget::levelChanged, [this](int){
         playSoundEffect(levelUpSound);
     });
-
     connect(game,  &RainWidget::gamePaused, [this](bool) {
         playSoundEffect(gamePauseSound);
     });
-    setFixedSize(centralWidget->sizeHint());
+    return gamePage;
 }
 
-
-void PaletteRain::showGameOverDialog(int score, int level) {
-    playSoundEffect(gameOverSound);
-    QString message = QString("💀 GAME OVER 💀\n\n")
-                      + "Final Score: " + QString::number(score) + "\n"
-                      + "Level: " + QString::number(level) + "\n\n"
-                      + "Play again?";
-
-    QMessageBox msgBox;
-    msgBox.setWindowTitle("Game Over");
-    msgBox.setText(message);
-    msgBox.setIcon(QMessageBox::Information);
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    msgBox.setDefaultButton(QMessageBox::Yes);
-
-    // Retro style using style sheet
-    msgBox.setStyleSheet(
-        "QMessageBox { background-color: #111; color: #00FF00; font-family: Courier; font-size: 14px; } "
-        "QLabel { color: white; font: bold 20px 'Courier'; }"
-        "QPushButton { background-color: #222; color: #FFD700; border: 2px solid #FF4500; padding: 4px; } "
-        "QPushButton:hover { background-color: #333; }"
-        );
-
-    int ret = msgBox.exec();
-    if (ret == QMessageBox::Yes) {
-        game->resetGame();
-    } else {
-        // Optional: Close app or do nothing
-        close(); // if RainWidget is the main window
-    }
-}
-
-void PaletteRain::showHelpDialog()
+QFrame *PaletteRain::createHelpPage()
 {
-    QString helpText = R"(
+    QFrame *msgPage = new QFrame(this);
+    const QString helpHtml = R"(<!DOCTYPE html>
+  <html>
+  <body style="margin:0; font-family:'Segoe UI','DejaVu Sans',Arial,sans-serif; font-size:12pt; color:#ffffff;">
+    <!-- Header -->
+    <div style="text-align:center; padding:10px; border-bottom:2px solid #444; margin-bottom:10px;">
+      <h2 style="margin:0; font-size:22pt; font-weight:800; letter-spacing:.5px;">
+        How to Play – PaletteRain
+      </h2>
+    </div>
 
-🕹️ Palette Rain - How to Play 🕹️
+    <!-- Main Content -->
+    <p style="margin:8px 0 0 0;">
+      Match <b>3 or more</b> blocks of the same color either horizontally or vertically.<br/>
+      Blocks fall in sets of 3. Rotate their colors, move them, and match them to score points.<br/>
+      As your score increases, the speed increases. The game ends if blocks reach the top.
+    </p>
 
-Match 3 or more blocks of the same color either horizontally or vertically.
-Blocks fall in sets of 3. Rotate their colors, move them, and match them to score points.
-As your score increases, the speed increases. The game ends if blocks reach the top.
+    <h3 style="margin:16px 0 6px 0;">Controls</h3>
+    <table style="border-collapse:collapse; margin:4px 0 10px 0;">
+      <tr>
+        <th style="text-align:left; padding:4px 10px 4px 0; border-bottom:1px solid #666;">Key</th>
+        <th style="text-align:left; padding:4px 0; border-bottom:1px solid #666;">Action</th>
+      </tr>
+      <tr><td style="padding:6px 10px 6px 0;">⬅️ Left</td>  <td style="padding:6px 0;">Move droplet left</td></tr>
+      <tr><td style="padding:6px 10px 6px 0;">➡️ Right</td> <td style="padding:6px 0;">Move droplet right</td></tr>
+      <tr><td style="padding:6px 10px 6px 0;">⬇️ Down</td>  <td style="padding:6px 0;">Speed up fall</td></tr>
+      <tr><td style="padding:6px 10px 6px 0;">⬆️ Up</td>    <td style="padding:6px 0;">Rotate droplet colors</td></tr>
+      <tr><td style="padding:6px 10px 6px 0;">F1</td>       <td style="padding:6px 0;">Show/Hide help screen</td></tr>
+      <tr><td style="padding:6px 10px 6px 0;">ESC</td>      <td style="padding:6px 0;">Pause/Resume game</td></tr>
+    </table>
 
-Controls:
+    <p style="margin:8px 0;">
+      🎯 <b>Score</b> increases by <b>10</b> per block cleared.<br/>
+      🚀 <b>Level</b> increases every <b>500</b> points, and speed increases with level.
+    </p>
 
-  Key       | Action
-  ----------|--------------------------
-  ⬅️ Left   | Move droplet left
-  ➡️ Right  | Move droplet right
-  ⬇️ Down   | Speed up fall
-  ⬆️ Up     | Rotate droplet colors
-  F1        | Show help screen
-  ESC       | Pause/Resume game
-
-🎯 Score increases by 10 per block cleared.
-🚀 Level increases every 500 points, and speed increases with level.
-
-👨‍💻 **Developer**
-Vivek P
-🌐 [GitHub](https://github.com/Vivx701)
-✉️ vivx_developer@yahoo.in
-🔗 [LinkedIn](https://linkedin.com/in/vivek-p-87323b111)
-
-)";
-
-    helpText += "Built with Qt version:" QT_VERSION_STR;
-    QMessageBox *msg = new QMessageBox(this);
-    msg->setWindowTitle("How to Play - Palette Rain");
-    msg->setText(helpText);
+    <h3 style="margin:16px 0 6px 0;">👨‍💻 Developer</h3>
+    <p style="margin:4px 0;">
+      <b>Vivek P</b><br/>
+      🌐 <a href="https://github.com/Vivx701">GitHub</a><br/>
+      🔗 <a href="https://linkedin.com/in/vivek-p-87323b111">LinkedIn</a>
+    </p>
+  </body>
+</html>)";
 
     // Apply retro style
-    msg->setStyleSheet(R"(
-    QMessageBox {
-        background-color: black;
-        color: white;
-        font-family: 'Courier';
-        font-size: 11pt;
+    msgPage->setStyleSheet(R"(
+    QWidget {
+        background-color: #000;   /* Full black background */
     }
     QLabel {
-        color: white;
+        color: #ddd;              /* Light gray text */
+        font-size: 12pt;
+    }
+    QLabel[role="header"] {
+        color: #00e0ff;           /* Cyan title text */
+        font-weight: bold;
+        font-size: 16pt;
+    }
+    QLabel[role="footer"] {
+        color: #888;              /* Dim gray footer text */
+        font-size: 9pt;
     }
     QPushButton {
         background-color: #222;
-        color: white;
-        padding: 6px;
+        color: #fff;
+        padding: 6px 12px;
         border: 1px solid #555;
+        border-radius: 4px;
     }
     QPushButton:hover {
-        background-color: #444;
+        background-color: #333;
+        border-color: #777;
+    }
+    QPushButton:pressed {
+        background-color: #111;
+        border-color: #999;
     }
 )");
 
-    msg->setStandardButtons(QMessageBox::Ok|QMessageBox::Help);
-    game->pauseGame();
-    int ret = msg->exec();
-    if (ret == QMessageBox::Help) {
-        QMessageBox::aboutQt(this);
-    }
-    game->resumeGame();
+    QLabel* helpLabel = new QLabel(msgPage);
+    helpLabel->setTextFormat(Qt::RichText);
+    helpLabel->setWordWrap(true);
+    helpLabel->setOpenExternalLinks(true);
+    helpLabel->setText(helpHtml);
 
-}
+    msgPage->setLayout(new QVBoxLayout());
+    msgPage->layout()->addWidget(helpLabel);
 
-void PaletteRain::playSoundEffect(QSoundEffect *effect)
-{
-    if(effect == nullptr)
-    {
-        return;
-    }
-    if(effect->isPlaying())
-    {
-        effect->stop();
-    }
-    effect->play();
+    QLabel* qtVersionLabel = new QLabel(msgPage);
+    qtVersionLabel->setText("Built with Qt version : " QT_VERSION_STR );
+    qtVersionLabel->setAlignment(Qt::AlignHCenter);
+    msgPage->layout()->addWidget(qtVersionLabel);
+    msgPage->installEventFilter(this);
+    return msgPage;
 }
 
 PaletteRain::~PaletteRain()

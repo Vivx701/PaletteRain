@@ -19,10 +19,12 @@ set(PROJECT_SOURCES
     include/Paletterain.h
     include/Rainwidget.h
     include/Statuswidget.h
+    include/GameOverPage.h
     main.cpp
     src/Paletterain.cpp
     src/Rainwidget.cpp
     src/Statuswidget.cpp
+    src/GameOverPage.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
