@@ -160,7 +160,6 @@ void RainWidget::spawnDroplet() {
     }
 }
 
-
 bool RainWidget::moveDroplet(int dx, int dy) {
     QVector<QPoint> newPositions;
     for (const QPoint &pos : fallingPositions) {
@@ -175,8 +174,6 @@ bool RainWidget::moveDroplet(int dx, int dy) {
     fallingPositions = newPositions;
     return true;
 }
-
-
 
 void RainWidget::lockDroplet() {
     for (int i = 0; i < fallingBlocks.size(); ++i) {
@@ -275,7 +272,7 @@ void RainWidget::clearMatches() {
 
 void RainWidget::checkAndClearAllMatches()
 {
-    do {
+    do{
         clearMatches();
     } while (clearedBlocks > 0);
 }

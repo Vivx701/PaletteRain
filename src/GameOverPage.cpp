@@ -4,8 +4,9 @@
 GameOverPage::GameOverPage(QWidget *parent)
     : QWidget{parent}
 {
-    titleLabel = new QLabel(u8"💀 GAME OVER 💀", this);
+    titleLabel = new QLabel("GAME OVER", this);
     titleLabel->setAlignment(Qt::AlignCenter);
+    titleLabel->setObjectName("tittle");
     messageLabel = new QLabel(this);
     messageLabel->setAlignment(Qt::AlignCenter);
     this->setLayout(new QVBoxLayout());
@@ -17,6 +18,11 @@ GameOverPage::GameOverPage(QWidget *parent)
     setStyleSheet(R"(
         QWidget{
             background-color: #020618;
+        }
+        QLabel#tittle {
+            color: #DFF2FE;
+            font-weight: 800;
+            font-size: 50px;
         }
         QLabel {
             color: #DFF2FE;

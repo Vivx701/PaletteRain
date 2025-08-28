@@ -3,5 +3,10 @@
         <file>Music/gameover.wav</file>
         <file>Music/levelup.wav</file>
         <file>Music/pause.wav</file>
+        <file>Images/fun.png</file>
+        <file>Images/love.png</file>
+        <file>Images/smile.png</file>
+        <file>Images/wait.png</file>
+        <file>Images/wow.png</file>
     </qresource>
 </RCC>

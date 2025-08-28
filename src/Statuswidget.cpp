@@ -1,11 +1,21 @@
 #include "Statuswidget.h"
 #include <QPainter>
 #include <QFont>
+#include <QTimer>
 
 StatusWidget::StatusWidget(QWidget *parent)
-    : QWidget(parent), score(0), level(1), smiley("😃") {
+    : QWidget(parent), score(0), level(1)
+{
     fontSize = qMax(20, height() / 10);
     helpMsg = "F1(Help)";
+    smileys = {
+                QImage(":/Images/smile.png"),
+                QImage(":/Images/fun.png"),
+                QImage(":/Images/wow.png"),
+                QImage(":/Images/love.png"),
+                QImage(":/Images/wait.png")
+              };
+    currentSmileyIndex = 0;
 }
 
 void StatusWidget::setScore(int newScore) {
@@ -13,37 +23,39 @@ void StatusWidget::setScore(int newScore) {
     int diff = (newScore - score);
     if(diff == 30)
     {
-        smiley = "😊";
+        currentSmileyIndex = 1;
     }
-    else if (diff >=40)
+    else if (diff >= 40)
     {
-        smiley = "😎";
+        currentSmileyIndex = 2;
     }
-    else
+    if(diff >= 30)
     {
-        smiley = "😐";
+        QTimer::singleShot(3000, this, [this](){currentSmileyIndex=0;update();});
     }
     score = newScore;
     update(); // Trigger repaint
+
 }
 
 void StatusWidget::setLevel(int newLevel) {
     level = newLevel;
-    smiley = "🚀";
+    currentSmileyIndex = 3;
     update(); // Trigger repaint
+    QTimer::singleShot(3000, this, [this](){currentSmileyIndex=0;update();});
 }
 
 void StatusWidget::setPaused(bool paused)
 {
     pauseMsg = paused ? "Paused": "";
-    smiley = paused ? "⏸️": "😐";
+    currentSmileyIndex = paused ? 4: 0;
     update();
 }
 
-void StatusWidget::paintEvent(QPaintEvent *) {
-
+void StatusWidget::paintEvent(QPaintEvent *)
+{
     QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
     painter.fillRect(rect(), Qt::black);
 
     // 🔥 Fire gradient for text
@@ -57,11 +69,13 @@ void StatusWidget::paintEvent(QPaintEvent *) {
     painter.setFont(font);
 
     // Text
-    painter.drawText(10, 30, QString("SCORE: %1").arg(score));
-    painter.drawText(10, 55, QString("LEVEL: %1").arg(level));
-    painter.drawText(10, 100, smiley);
-    painter.drawText(10, 150, helpMsg);
-
+    painter.drawText(10, 20, QString("SCORE: %1").arg(score));
+    painter.drawText(10, 50, QString("LEVEL: %1").arg(level));
+    painter.drawText(10, 95, helpMsg);
     //Paused
-    painter.drawText(10, 200, pauseMsg);
+    painter.drawText(10, 125, pauseMsg);
+
+    //draw smiley
+    painter.drawImage(QRect(10, 150, 100, 100), smileys[currentSmileyIndex]);
+
 }

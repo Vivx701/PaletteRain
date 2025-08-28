@@ -1,8 +1,8 @@
 #ifndef STATUSWIDGET_H
 #define STATUSWIDGET_H
 
-
 #include <QWidget>
+#include <QImage>
 
 class StatusWidget : public QWidget {
     Q_OBJECT
@@ -21,7 +21,8 @@ protected:
 private:
     int score;
     int level;
-    QString smiley;
+    QList<QImage> smileys;
+    int currentSmileyIndex;
     QString helpMsg;
     QString pauseMsg;
     int fontSize;

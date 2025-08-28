@@ -31,7 +31,6 @@ private:
     int tileSize = 32;
     bool isGameOver = false;
     bool paused = false;
-
     QVector<QVector<Droplet*>> grid;
     QVector<Droplet*> fallingBlocks;
     QVector<QPoint> fallingPositions;

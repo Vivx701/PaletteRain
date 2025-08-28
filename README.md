@@ -16,17 +16,16 @@
 
 ## ⌨️ Controls
 
-| Key        | Action                    |
+| Key        | Action                     |
 |------------|----------------------------|
 | ⬅️ Left     | Move droplet left         |
 | ➡️ Right    | Move droplet right        |
-| ⬇️ Down     | Speed up falling droplet |
+| ⬇️ Down     | Speed up falling droplet  |
 | ⬆️ Up       | Rotate droplet colors     |
-| R          | Reset the game             |
-| Esc          | Pause / Resume             |
-| F1         | Show Help screen           |
-
----
+| R           | Reset the game             |
+| Esc         | Pause / Resume             |
+| F1          | Show/Hide Help screen      |
+--------------------------------------------
 
 ## 🧮 Scoring & Levels
 

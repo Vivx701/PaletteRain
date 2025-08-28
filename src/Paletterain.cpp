@@ -98,7 +98,7 @@ QFrame *PaletteRain::createGamePage()
 
     game = new RainWidget(this);
     status = new StatusWidget(this);
-    status->setFixedSize(200, 200);
+    status->setFixedSize(200, 400);
 
     levelUpSound   = new QSoundEffect(this);
     gameOverSound  = new QSoundEffect(this);
