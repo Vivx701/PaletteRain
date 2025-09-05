@@ -4,7 +4,8 @@
 #include <QRandomGenerator>
 #include <QThread>
 
-RainWidget::RainWidget(QWidget *parent) : QWidget(parent) {
+RainWidget::RainWidget(QWidget *parent) : QWidget(parent)
+{
 
     grid.resize(rows);
     for (int i = 0; i < rows; ++i)
@@ -14,10 +15,12 @@ RainWidget::RainWidget(QWidget *parent) : QWidget(parent) {
     connect(timer, &QTimer::timeout, this, &RainWidget::updateGame);
     timer->start(400); // drop speed
     setMinimumSize(QSize(cols * tileSize+10, rows * tileSize+10));
+    setContentsMargins(0, 0, 0, 0);
     spawnDroplet();
 }
 
-void RainWidget::resizeEvent(QResizeEvent *event) {
+void RainWidget::resizeEvent(QResizeEvent *event)
+{
     QWidget::resizeEvent(event);
 
     // Dynamically calculate tileSize based on new widget size
@@ -27,8 +30,9 @@ void RainWidget::resizeEvent(QResizeEvent *event) {
     update(); // Repaint
 }
 
-QSize RainWidget::sizeHint() const {
-    return QSize(cols * tileSize, rows * tileSize);
+QSize RainWidget::sizeHint() const
+{
+    return QSize(cols * (tileSize*1.03), rows * (tileSize*1.03));
 }
 
 void RainWidget::paintEvent(QPaintEvent *) {
@@ -42,10 +46,7 @@ void RainWidget::paintEvent(QPaintEvent *) {
     borderPen.setWidth(borderMargin);   // thickness of the border
     p.setPen(borderPen);
     p.setBrush(Qt::NoBrush);
-    p.drawRect(rect().adjusted(borderMargin / 2,
-                               borderMargin / 2,
-                               -borderMargin / 2,
-                               -borderMargin / 2));
+    p.drawRect(0, 0, sizeHint().width(), sizeHint().height()/1.015);
 
     // 🔲 Draw grid blocks inside the border
     int offsetX = borderMargin+3;

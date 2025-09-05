@@ -4,32 +4,18 @@
 GameOverPage::GameOverPage(QWidget *parent)
     : QWidget{parent}
 {
+    setObjectName("Gameover");
     titleLabel = new QLabel("GAME OVER", this);
     titleLabel->setAlignment(Qt::AlignCenter);
     titleLabel->setObjectName("tittle");
     messageLabel = new QLabel(this);
     messageLabel->setAlignment(Qt::AlignCenter);
+    messageLabel->setObjectName("msg");
     this->setLayout(new QVBoxLayout());
     this->layout()->addWidget(titleLabel);
     this->layout()->addWidget(messageLabel);
     this->layout()->setSpacing(0);
     this->layout()->setSizeConstraint(QLayout::SetNoConstraint);
-
-    setStyleSheet(R"(
-        QWidget{
-            background-color: #020618;
-        }
-        QLabel#tittle {
-            color: #DFF2FE;
-            font-weight: 800;
-            font-size: 50px;
-        }
-        QLabel {
-            color: #DFF2FE;
-            font-weight: 800;
-            font-size: 24px;
-        }
-        )");
 }
 
 void GameOverPage::setScoreAndLevel(int score, int level)

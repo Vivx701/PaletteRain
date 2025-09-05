@@ -9,6 +9,7 @@ class StatusWidget : public QWidget {
 
 public:
     explicit StatusWidget(QWidget *parent = nullptr);
+    QSize sizeHint() const override;
 
 public slots:
     void setScore(int score);

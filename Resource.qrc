@@ -8,5 +8,6 @@
         <file>Images/smile.png</file>
         <file>Images/wait.png</file>
         <file>Images/wow.png</file>
+        <file>style.qss</file>
     </qresource>
 </RCC>

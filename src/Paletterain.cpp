@@ -10,7 +10,6 @@ PaletteRain::PaletteRain(QWidget *parent)
     setWindowTitle("Palette Rain");
     centralWidget = new QStackedWidget(this);
     setCentralWidget(centralWidget);
-    setFixedSize(centralWidget->sizeHint());
     createPages();
 }
 
@@ -94,11 +93,8 @@ void PaletteRain::createPages()
 QFrame *PaletteRain::createGamePage()
 {
     QFrame *gamePage = new QFrame();
-    gamePage->setStyleSheet("background-color: #000000;");
-
     game = new RainWidget(this);
     status = new StatusWidget(this);
-    status->setFixedSize(200, 400);
 
     levelUpSound   = new QSoundEffect(this);
     gameOverSound  = new QSoundEffect(this);
@@ -114,8 +110,11 @@ QFrame *PaletteRain::createGamePage()
     game->setFocus();
 
     QHBoxLayout *layout = new QHBoxLayout();
-    layout->addWidget(game, 3);
-    layout->addWidget(status, 1, Qt::AlignCenter);
+    layout->addWidget(game, 0);
+    layout->addWidget(status, 0, Qt::AlignLeft|Qt::AlignVCenter);
+    layout->addStretch(1);
+    layout->setSpacing(3);
+    layout->setSizeConstraint(QLayout::SetNoConstraint);
     gamePage->setLayout(layout);
 
     connect(game, SIGNAL(scoreChanged(int)), status, SLOT(setScore(int)));
@@ -181,40 +180,6 @@ QFrame *PaletteRain::createHelpPage()
   </body>
 </html>)";
 
-    // Apply retro style
-    msgPage->setStyleSheet(R"(
-    QWidget {
-        background-color: #000;   /* Full black background */
-    }
-    QLabel {
-        color: #ddd;              /* Light gray text */
-        font-size: 12pt;
-    }
-    QLabel[role="header"] {
-        color: #00e0ff;           /* Cyan title text */
-        font-weight: bold;
-        font-size: 16pt;
-    }
-    QLabel[role="footer"] {
-        color: #888;              /* Dim gray footer text */
-        font-size: 9pt;
-    }
-    QPushButton {
-        background-color: #222;
-        color: #fff;
-        padding: 6px 12px;
-        border: 1px solid #555;
-        border-radius: 4px;
-    }
-    QPushButton:hover {
-        background-color: #333;
-        border-color: #777;
-    }
-    QPushButton:pressed {
-        background-color: #111;
-        border-color: #999;
-    }
-)");
 
     QLabel* helpLabel = new QLabel(msgPage);
     helpLabel->setTextFormat(Qt::RichText);
