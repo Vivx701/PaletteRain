@@ -20,6 +20,10 @@ int main(int argc, char *argv[])
         file.close();
     }
     PaletteRain w;
+#ifdef Q_OS_WIN
+    w.setWindowFlags(w.windowFlags() & ~Qt::WindowMaximizeButtonHint);
+#endif
     w.show();
+    qDebug() << "Size "<<w.sizeHint();
     return a.exec();
 }

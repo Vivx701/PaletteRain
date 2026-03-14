@@ -1,0 +1,7 @@
+<Package>
+    <DisplayName>Palette Rain</DisplayName>
+    <Description>Palette Rain is a retro-style puzzle game, inspired by classic falling block games like Tetris</Description>
+    <Version>0.3.1</Version>
+    <ReleaseDate>2026-03-14</ReleaseDate>
+    <Default>true</Default>
+</Package>

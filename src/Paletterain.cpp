@@ -112,8 +112,7 @@ QFrame *PaletteRain::createGamePage()
     QHBoxLayout *layout = new QHBoxLayout();
     layout->addWidget(game, 0);
     layout->addWidget(status, 0, Qt::AlignLeft|Qt::AlignVCenter);
-    layout->addStretch(1);
-    layout->setSpacing(3);
+    layout->setSpacing(10);
     layout->setSizeConstraint(QLayout::SetNoConstraint);
     gamePage->setLayout(layout);
 
@@ -170,13 +169,13 @@ QFrame *PaletteRain::createHelpPage()
       🎯 <b>Score</b> increases by <b>10</b> per block cleared.<br/>
       🚀 <b>Level</b> increases every <b>500</b> points, and speed increases with level.
     </p>
-
+    <!--
     <h3 style="margin:16px 0 6px 0;">👨‍💻 Developer</h3>
     <p style="margin:4px 0;">
       <b>Vivek P</b><br/>
       🌐 <a href="https://github.com/Vivx701">GitHub</a><br/>
       🔗 <a href="https://linkedin.com/in/vivek-p-87323b111">LinkedIn</a>
-    </p>
+    </p> -->
   </body>
 </html>)";
 
